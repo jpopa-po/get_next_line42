@@ -6,12 +6,12 @@
 /*   By: jpopa-po <jpopa-po@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/08/17 09:03:28 by agallipo          #+#    #+#             */
-/*   Updated: 2021/08/19 15:57:51 by jpopa-po         ###   ########.fr       */
+/*   Updated: 2021/09/01 21:44:51 by jpopa-po         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-
+/*
 char	*ft_check(char *buff, char *chk, char *line)
 {
 	char	*aux;
@@ -94,6 +94,77 @@ char	*get_next_line(int fd)
 	}
 	return (variable.aux);
 }
+*/
+void	ft_rd(int fd, char *buff, char **line)
+{
+	t_var		variable;
+
+	if (!*line || !ft_strchr(*line, '\n'))
+	{
+		buff[0] = '\0';
+		variable.i = read(fd, buff, BUFFER_SIZE);
+		buff[variable.i] = '\0';
+		while (variable.i > 0)
+		{
+			buff[variable.i] = 0;
+			if (!*line)
+				*line = ft_substr(buff, 0, variable.i);
+			else
+			{
+				variable.aux = *line;
+				*line = ft_strjoin(*line, buff);
+				free(variable.aux);
+			}
+			if (ft_strchr(buff, '\n'))
+				break ;
+			variable.i = read(fd, buff, BUFFER_SIZE);
+		}
+	}
+	free(buff);
+}
+
+char	*ft_putln(char **line)
+{
+	t_var		variable;
+
+	if (!*line)
+		return (0);
+	if (!ft_strchr(*line, '\n'))
+	{
+		variable.res = ft_substr(*line, 0, ft_strlen(*line));
+		free(*line);
+		*line = 0;
+		return (variable.res);
+	}
+	variable.i = ft_strlen(*line);
+	variable.j = ft_strlen(ft_strchr(*line, '\n'));
+	variable.res = ft_substr(*line, 0, variable.i - variable.j + 1);
+	variable.aux = *line;
+	*line = ft_substr(ft_strchr(*line, '\n'), 1, variable.j);
+	free(variable.aux);
+	return (variable.res);
+}
+
+char	*get_next_line(int fd)
+{
+	t_var		variable;
+	static char	*line[FD_SETSIZE];
+
+	variable.buff = malloc(BUFFER_SIZE + 1);
+	if (BUFFER_SIZE < 1 || fd == -1 || !variable.buff
+		|| read(fd, variable.buff, 0) == -1)
+	{
+		free(variable.buff);
+		return (NULL);
+	}
+	if ((read(fd, NULL, 0) == -1))
+	{
+		free(variable.buff);
+		return (NULL);
+	}
+	ft_rd(fd, variable.buff, &line[fd]);
+	return (ft_putln(&line[fd]));
+}
 /*
 int main(int argc, char **argv)
 {
@@ -101,7 +172,7 @@ int main(int argc, char **argv)
 	int	fd2;
 	int ret = 0;
 	char *line;
-	int	i;
+	int	variable.;
 
 	line = 0;
 	if (argc == 3)
@@ -164,4 +235,5 @@ int main(int argc, char **argv)
 	system("leaks a.out");
 	return (0);
 }
+
 */
